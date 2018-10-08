@@ -12594,7 +12594,7 @@ public class View implements Drawable.Callback, KeyEvent.Callback,
             ListenerInfo li = mListenerInfo;
             if (li != null && li.mOnTouchListener != null
                     && (mViewFlags & ENABLED_MASK) == ENABLED
-                    && li.mOnTouchListener.onTouch(this, event)) {
+                    && li.mOnTouchListener.onTouch(this, event)) {//mOnTouchListener.onTouch返回true，表示事件被消费，不再执行 onTouchEvent
                 result = true;
             }
 

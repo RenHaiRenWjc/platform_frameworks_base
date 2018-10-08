@@ -2570,6 +2570,7 @@ public abstract class ViewGroup extends View implements ViewParent, ViewManager 
             final int action = ev.getAction();
             final int actionMasked = action & MotionEvent.ACTION_MASK;
 
+            // [wjc on 2018/10/8/008 21:09] down 清空状态
             // Handle an initial down.
             if (actionMasked == MotionEvent.ACTION_DOWN) {
                 // Throw away all previous state when starting a new touch gesture.
@@ -2581,8 +2582,9 @@ public abstract class ViewGroup extends View implements ViewParent, ViewManager 
 
             // Check for interception.
             final boolean intercepted;
-            if (actionMasked == MotionEvent.ACTION_DOWN
-                    || mFirstTouchTarget != null) {
+            // [wjc on 2018/10/8/008 21:10] mFirstTouchTarget 表示 viewgroup 是否拦截了事件，！=null 没拦截，交给子 view 处理
+            if (actionMasked == MotionEvent.ACTION_DOWN || mFirstTouchTarget != null) {
+                // [wjc on 2018/10/8/008 21:22] FLAG_DISALLOW_INTERCEPT 主要禁止 ViewGroup 拦截除了DOWN之外的事件
                 final boolean disallowIntercept = (mGroupFlags & FLAG_DISALLOW_INTERCEPT) != 0;
                 if (!disallowIntercept) {
                     intercepted = onInterceptTouchEvent(ev);
@@ -2641,6 +2643,8 @@ public abstract class ViewGroup extends View implements ViewParent, ViewManager 
                         final boolean customOrder = preorderedList == null
                                 && isChildrenDrawingOrderEnabled();
                         final View[] children = mChildren;
+                        // [wjc on 2018/10/8/008 21:51] 遍历子view，判断子元素是否能够接受到点击事件，如果能接受，则交给子元素处理
+                        // 倒序 上层的子 view 开始往内层遍历
                         for (int i = childrenCount - 1; i >= 0; i--) {
                             final int childIndex = getAndVerifyPreorderedIndex(
                                     childrenCount, i, customOrder);
@@ -2658,7 +2662,7 @@ public abstract class ViewGroup extends View implements ViewParent, ViewManager 
                                 childWithAccessibilityFocus = null;
                                 i = childrenCount - 1;
                             }
-
+                            // [wjc on 2018/10/8/008 22:00] 判断触摸点的位置是否在子view的范围内或子view是否在播放动画
                             if (!canViewReceivePointerEvents(child)
                                     || !isTransformedTouchPointInView(x, y, child, null)) {
                                 ev.setTargetAccessibilityFocus(false);
